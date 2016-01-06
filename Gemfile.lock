@@ -1,25 +1,36 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    ansi (1.5.0)
+    ast (2.2.0)
     aws-sdk (2.2.9)
       aws-sdk-resources (= 2.2.9)
     aws-sdk-core (2.2.9)
       jmespath (~> 1.0)
     aws-sdk-resources (2.2.9)
       aws-sdk-core (= 2.2.9)
+    bnext_robot (0.1.7)
+      oga
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     jmespath (1.1.3)
     json (1.8.3)
     multi_xml (0.5.5)
+    oga (2.0.0)
+      ast
+      ruby-ll (~> 2.1)
+    ruby-ll (2.1.2)
+      ansi
+      ast
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   aws-sdk
+  bnext_robot
   httparty
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
