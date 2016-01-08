@@ -16,6 +16,7 @@ feeds = feeds[0...100] if feeds.length >= 100
 feeds.each do |feed|
   feed.delete 'created_at' if feed.has_key? 'created_at'
   feed.delete 'updated_at' if feed.has_key? 'updated_at'
+  feed['tags'] = JSON.parse(feed['tags']) if feed.has_key? 'tags'
 end
 
 feeds.each do |feed|
