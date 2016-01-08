@@ -21,6 +21,12 @@ cats.each do |cat|
     # Each element in feeds is a Hash that contains all information of an article/feed
     get_result = HTTParty.get(GET_URL, options)
     feeds = JSON.parse(get_result.body)
+
+    # Remove pairs that are not needed
+    feeds.each do |feed|
+      feed.delete 'content' if feed.has_key? 'content'
+      feed.delete 'imgs' if feed.has_key? 'imgs'
+    end
     
     # Get response codes for every article/feed
     resps = feeds.map do |feed|
