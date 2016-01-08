@@ -3,50 +3,39 @@ require 'json'
 require 'httparty'
 
 POST_URL = 'http://trendcrawl.herokuapp.com/api/v1/article'
-GET_URL = 'http://trendcrawl.herokuapp.com/api/rubygem/bnext_robot/get_feeds'
+GET_URL = 'http://trendcrawl.herokuapp.com/api/v1/article/filter'
+DEL_URL = 'http://trendcrawl.herokuapp.com/api/v1/article/'
 
-cats = ['internet', 'tech', 'marketing', 'startup', 'people', 'skill']
+option = { headers: { 'Content-Type' => 'application/json' } }
+result = HTTParty.get(GET_URL, option)
 
-cats.each do |cat|
-  page_no = 1
-  while page_no <= 20
-    print "\rPosting aritcles of '#{cat}' at page #{page_no} "
+feeds = JSON.parse(result.body)
+feeds = feeds[0...100]
 
-    options = {
-      headers: { 'Content-Type' => 'application/json' },
-      query: { :cat => cat, :page_no => page_no }
-    }
+feeds.each do |feed|
+  feed.delete 'created_at' if feed.has_key? 'created_at'
+  feed.delete 'updated_at' if feed.has_key? 'updated_at'
+end
 
-    # feeds = BNextRobot.new.get_feeds(cat, page_no).map(:to_hash).to_json
-    # Each element in feeds is a Hash that contains all information of an article/feed
-    get_result = HTTParty.get(GET_URL, options)
-    feeds = JSON.parse(get_result.body)
+feeds.each do |feed|
+  id = feed.delete 'id'
 
-    # Remove pairs that are not needed
-    feeds.each do |feed|
-      feed.delete 'content' if feed.has_key? 'content'
-      feed.delete 'imgs' if feed.has_key? 'imgs'
-    end
-    
-    # Get response codes for every article/feed
-    resps = feeds.map do |feed|
-      options = {
-        headers: { 'Content-Type' => 'application/json' },
-        body: feed.to_json
-      }
-      result = HTTParty.post(POST_URL, options)
-      result.code
-    end
+  option = {
+    headers: { 'Content-Type' => 'application/json' },
+    body: feed.to_json
+  }
 
-    # Termination criterion: posting a page where all articles/feeds have been posted before
-    # 201: new posted
-    # 208: already posted
-    if resps.select { |resp| resp == 208 }.length == resps.length
-      print "Posted!!"
-      break
-    end
+  resp = HTTParty.post(POST_URL, option)
+  puts "Posting [#{id}] #{feed['title']}"
+  puts "Status: #{resp.code}"
 
-    page_no += 1
+  if resp.code == 201 or resp.code == 208
+    resp = HTTParty.delete(DEL_URL + "#{id}/")
+    puts "Delete [#{id}]"
+    puts "Status: #{resp.code}"
   end
-  print "\n"
+
+  puts ""
+
+  sleep(5)
 end
