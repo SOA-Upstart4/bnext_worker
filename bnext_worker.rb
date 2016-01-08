@@ -2,15 +2,16 @@ require_relative 'bundle/bundler/setup'
 require 'json'
 require 'httparty'
 
-POST_URL = 'http://trendcrawl.herokuapp.com/api/v1/article'
-GET_URL = 'http://trendcrawl.herokuapp.com/api/v1/article/filter'
-DEL_URL = 'http://trendcrawl.herokuapp.com/api/v1/article/'
+POST_URL = 'https://bnext-dynamo.herokuapp.com/api/v1/article/'
+GET_URL = 'https://trendcrawl.herokuapp.com/api/v1/article/filter/'
+DEL_URL = 'https://trendcrawl.herokuapp.com/api/v1/article/'
 
 option = { headers: { 'Content-Type' => 'application/json' } }
 result = HTTParty.get(GET_URL, option)
 
 feeds = JSON.parse(result.body)
-feeds = feeds[0...100]
+
+feeds = feeds[0...100] if feeds.length >= 100
 
 feeds.each do |feed|
   feed.delete 'created_at' if feed.has_key? 'created_at'
